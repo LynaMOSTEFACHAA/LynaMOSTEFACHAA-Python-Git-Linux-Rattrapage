@@ -1,12 +1,8 @@
 import dash
 from dash import html, dcc
 import random
+import subprocess
 
-questions = {
-    "Git": "Qu'est-ce qu'un commit en Git?",
-    "Python": "Quelle est la différence entre une liste et un tuple en Python?",
-    "Linux": "Quelle est la commande pour changer les permissions d'un fichier en Linux?"
-}
 
 answers = {
     "Git": "Un commit est une sauvegarde des modifications apportées à un fichier ou un ensemble de fichiers dans un référentiel Git.",
@@ -15,11 +11,13 @@ answers = {
 }
 
 def get_random_question():
-    global question, concept
-    concept = random.choice(list(questions.keys()))
-    question = questions[concept]
-    return question, concept
+    # Appeler le script bash et récupérer la sortie
+    output = subprocess.check_output(['bash', 'RandomQuestion.sh'])
 
+    # Convertir la sortie en chaîne de caractères et la diviser en question et concept
+    print(output.decode("utf-8").strip().split(";"))
+    question, concept = output.decode("utf-8").strip().split(",")
+    return question, concept
 
 question, concept = get_random_question()
 
@@ -30,7 +28,7 @@ app.layout = html.Div([
     html.H2(id="concept-header", children=["Concept clé: ", html.Span(id="concept", children=concept)]),
     html.P(id="question", children=question),
     dcc.Input(id="answer-input", type="text", placeholder="Entrez votre réponse"),
-    html.Button("Évaluer la réponse", id="submit-answer"),
+    html.Button("Evaluate answer", id="submit-answer"),
     html.Div(id="result")
 ])
 
